@@ -1,0 +1,28 @@
+networks:
+  backend:
+
+services:
+  customerdb:
+    container_name: customer-db
+    image: mcr.microsoft.com/mssql/server:2019-latest
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=password@123
+    networks:
+      - backend
+    ports:
+      - 8001:1433 # 1433 is default port for sql server and 8001 is docker port which we will use in host/system
+  customerwebapi:
+    container_name: "customer-api"
+    image: ${DOCKER_REGISTRY-}customerwebapi
+    build:
+      context: .
+      dockerfile: CustomerWebApi/Dockerfile
+    networks:
+      - backend
+    ports:
+      - 8002:8080 #80 port is getting from docker file which is exposed //8002 we will use to access cutomer api
+    environment:
+      - DB_HOST=customerdb
+      - DB_NAME=customer
+      - DB_SA_PASSWORD=password@123
