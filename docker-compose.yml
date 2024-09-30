@@ -1,5 +1,8 @@
+version: '3'
+
 networks:
   backend:
+    driver: bridge
 
 services:
   customerdb:
@@ -11,7 +14,8 @@ services:
     networks:
       - backend
     ports:
-      - 8001:1433 # 1433 is default port for sql server and 8001 is docker port which we will use in host/system
+      - 8001:1433
+
   customerwebapi:
     container_name: "customer-api"
     image: ${DOCKER_REGISTRY-}customerwebapi
@@ -21,8 +25,10 @@ services:
     networks:
       - backend
     ports:
-      - 8002:8080 #80 port is getting from docker file which is exposed //8002 we will use to access cutomer api
+      - 8002:80  # Map port 8002 on the host to port 8080 in the container
     environment:
       - DB_HOST=customerdb
       - DB_NAME=customer
       - DB_SA_PASSWORD=password@123
+    depends_on:
+      - customerdb  # Ensure customerwebapi starts after customerdb
